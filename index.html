@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Wiki del Eje 2 de Sistemas Operativos II (Areandina): propuesta de arquitectura de red para la empresa Protejo sus Datos.">
+<title>Aquí entre iguales</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+body{margin:0}
+
+/* Layout: wiki de dos columnas — índice fijo a la izquierda, artículo a la derecha; una columna en móvil */
+:root {
+  --bg: #f6f8fb;
+  --paper: #ffffff;
+  --fg: #1b2433;
+  --muted: #5a677d;
+  --line: #d9e0ea;
+  --accent: #1f5fa8;
+  --accent-soft: #e6eef8;
+  --warn: #9a5b00;
+  --warn-soft: #fbf1e1;
+  --f-display: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  --f-body: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161f; --paper: #171e2a; --fg: #e3e8f0; --muted: #9aa7bb; --line: #2a3446;
+  --accent: #7fb0ec; --accent-soft: #1c2b42; --warn: #f0b860; --warn-soft: #2e2416; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11161f; --paper: #171e2a; --fg: #e3e8f0; --muted: #9aa7bb; --line: #2a3446;
+  --accent: #7fb0ec; --accent-soft: #1c2b42; --warn: #f0b860; --warn-soft: #2e2416; color-scheme: dark }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 17px; line-height: 1.65; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 40px; align-items: start; }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 20px 48px; } }
+
+/* Índice */
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); font-family: var(--f-display); font-size: 14px; }
+@media (max-width: 860px) { nav.toc { position: static; } }
+.toc .brand { font-weight: 700; font-size: 15px; letter-spacing: .02em; color: var(--accent); margin-bottom: 4px; }
+.toc .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-left: 2px solid var(--line); }
+.toc a { display: block; padding: 6px 12px; color: var(--fg); text-decoration: none; margin-left: -2px; border-left: 2px solid transparent; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none; }
+.toc .who { display: block; font-size: 12px; color: var(--muted); }
+
+/* Artículo */
+article { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; min-width: 0;
+  padding: clamp(20px, 4vw, 48px); }
+header.cover { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 8px; }
+.eyebrow { font-family: var(--f-display); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 4vw, 38px); line-height: 1.15; margin: 8px 0 12px; text-wrap: balance; }
+.lede { color: var(--muted); font-size: 18px; margin: 0 0 16px; max-width: 62ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: var(--f-display); font-size: 14px; color: var(--muted); }
+.meta b { color: var(--fg); font-weight: 600; }
+
+section { padding-top: 36px; scroll-margin-top: 16px; }
+h2 { font-family: var(--f-display); font-weight: 700; font-size: 24px; margin: 0 0 6px; text-wrap: balance; }
+h3 { font-family: var(--f-display); font-weight: 600; font-size: 19px; margin: 28px 0 6px; text-wrap: balance; }
+.byline { font-family: var(--f-display); font-size: 13px; color: var(--accent); background: var(--accent-soft);
+  display: inline-block; padding: 3px 10px; border-radius: 999px; margin-bottom: 12px; }
+p, li { max-width: 68ch; }
+p { margin: 0 0 14px; }
+ul, ol.plain { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 6px; }
+strong { font-weight: 600; }
+.cite { color: var(--muted); }
+
+/* Discusión */
+.thread { display: grid; gap: 14px; margin: 8px 0 18px; }
+.post { border-left: 3px solid var(--line); padding: 4px 0 4px 16px; }
+.post .who { font-family: var(--f-display); font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.post.daniel { border-left-color: var(--accent); }
+.post p { margin: 0; }
+.consensus { background: var(--accent-soft); border-radius: 6px; padding: 14px 18px; }
+.consensus .who { color: var(--accent); }
+
+/* Tablas */
+.table-wrap { overflow-x: auto; margin: 10px 0 6px; border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-family: var(--f-display); font-size: 14px; line-height: 1.45; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { background: var(--accent-soft); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+.caption { font-family: var(--f-display); font-size: 13px; color: var(--muted); font-style: italic; margin: 0 0 18px; }
+.mono { font-family: var(--f-mono); font-size: 13px; }
+.vlan { font-family: var(--f-mono); font-size: 13px; background: var(--accent-soft); color: var(--accent); padding: 1px 7px; border-radius: 4px; white-space: nowrap; }
+.pill { font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--warn-soft); color: var(--warn); white-space: nowrap; }
+
+figure { margin: 14px 0 6px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; background: #ffffff; }
+
+.refs p { padding-left: 2.2em; text-indent: -2.2em; font-size: 15.5px; overflow-wrap: anywhere; }
+.refs i { font-style: italic; }
+footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-family: var(--f-display); font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contenido de la wiki">
+  <div class="brand">Aquí entre iguales</div>
+  <div class="sub">Wiki · Sistemas Operativos II · Eje 2</div>
+  <ol>
+    <li><a href="#justificacion">1. Justificación</a></li>
+    <li><a href="#objetivos">2. Objetivos</a></li>
+    <li><a href="#roles">3.1 Roles del equipo</a></li>
+    <li><a href="#aporte-daniel">3.2 Aporte<span class="who">Daniel Hernando Gil Romero</span></a></li>
+    <li><a href="#aporte-companero">3.3 Aporte<span class="who">Jabes Acuña Hernandez</span></a></li>
+    <li><a href="#discusion">3.4 Discusión entre pares</a></li>
+    <li><a href="#arquitectura">3.5 Arquitectura propuesta</a></li>
+    <li><a href="#conclusiones">4. Conclusiones</a></li>
+    <li><a href="#referencias">Referencias</a></li>
+  </ol>
+</nav>
+
+<article>
+<header class="cover">
+  <div class="eyebrow">Fundación Universitaria del Área Andina · Ingeniería de Sistemas</div>
+  <h1>Propuesta de arquitectura de red para “Protejo sus Datos”</h1>
+  <p class="lede">Una empresa que vende almacenamiento en la nube con máxima confidencialidad y disponibilidad 24/7 quiere administrar AWS desde un switch compartido. Evaluamos esa propuesta y recomendamos una alternativa.</p>
+  <div class="meta">
+    <span><b>Integrantes:</b> Daniel Hernando Gil Romero · Jabes Acuña Hernandez</span>
+    <span><b>Asignatura:</b> Sistemas Operativos II</span>
+    <span><b>Docente:</b> Jose Gerardo Cuta</span>
+    <span><b>Año:</b> 2026</span>
+  </div>
+</header>
+
+<section id="justificacion">
+<h2>1. Justificación</h2>
+<p>La empresa “Protejo sus Datos” quiere entrar al mercado colombiano con un servicio de almacenamiento en la nube basado en dos promesas: máxima confidencialidad y disponibilidad permanente (24/7) de la información de sus clientes. Para prestarlo contrata la infraestructura de Amazon Web Services (AWS) y, con el fin de reducir costos, los socios proponen conectar los computadores de los ingenieros y del área administrativa a un mismo switch que comparte el acceso a Internet desde el cual se gestiona el servicio en la nube.</p>
+<p>Esta decisión merece un análisis técnico, porque la seguridad de un servicio en la nube no depende solo del proveedor. Según el modelo de responsabilidad compartida, AWS protege la infraestructura de la nube, mientras que el cliente es responsable de las identidades, los accesos, la configuración y los equipos desde los cuales administra sus recursos <span class="cite">(Amazon Web Services, s.f.-a)</span>. La forma en que se diseñe la red interna y se configuren los sistemas operativos determina si la empresa puede cumplir lo que promete y si cumple el régimen colombiano de protección de datos personales <span class="cite">(Congreso de la República de Colombia, 2012)</span>. Este análisis es pertinente porque, como muestran Cano y Almanza <span class="cite">(2020)</span> al estudiar la evolución de la seguridad de la información en Colombia entre 2000 y 2018, este tema ha dejado de ser un asunto exclusivamente técnico para convertirse en una responsabilidad de la dirección de las organizaciones, impulsada en buena medida por la regulación.</p>
+<p>Desde la asignatura Sistemas Operativos II, el caso permite aplicar los conceptos de redes entre pares y cliente-servidor, servicios de directorio, administración de usuarios, grupos y permisos, y endurecimiento de sistemas operativos en un contexto real de negocio.</p>
+</section>
+
+<section id="objetivos">
+<h2>2. Objetivos</h2>
+<h3>Objetivo general</h3>
+<p>Proponer una arquitectura de red para la empresa “Protejo sus Datos” a partir de posiciones argumentadas técnicamente y de la evaluación del contexto, que garantice la confidencialidad y la disponibilidad de la información que la empresa administra en la nube.</p>
+<h3>Objetivos específicos</h3>
+<ol class="plain">
+  <li>Identificar el tipo de red que resulta de la propuesta de la directiva y describir sus ventajas técnicas.</li>
+  <li>Evaluar las consecuencias de la solución propuesta en términos de seguridad de la información.</li>
+  <li>Establecer las condiciones, ventajas y desventajas de implementar una red cliente-servidor en este contexto.</li>
+  <li>Diseñar una arquitectura de red que defina los roles de los equipos, sus características, los sistemas operativos, los grupos de usuarios y los perfiles.</li>
+</ol>
+</section>
+
+<section id="roles">
+<h2>3. Desarrollo de la actividad</h2>
+<h3>3.1 Roles y distribución del trabajo</h3>
+<div class="table-wrap"><table>
+<tr><th>Integrante</th><th>Rol en la wiki</th><th>Puntos a cargo</th></tr>
+<tr><td>Daniel Hernando Gil Romero</td><td>Analista de red y seguridad / consolidador de la wiki</td><td>Punto 1 (tipo de red propuesta), punto 2 (evaluación de seguridad) y topología de la arquitectura propuesta</td></tr>
+<tr><td>Jabes Acuña Hernandez</td><td>Analista de sistemas operativos y servidores</td><td>Puntos 3, 4 y 5 (red cliente-servidor) y sistemas operativos, roles de los equipos, grupos de usuarios y perfiles</td></tr>
+</table></div>
+<p class="caption">Tabla 1. Roles y distribución del trabajo del grupo. Fuente: propia.</p>
+<p>Las conclusiones (punto 7) se construyeron en conjunto a partir de la discusión registrada en la sección 3.4.</p>
+</section>
+
+<section id="aporte-daniel">
+<h3>3.2 Aporte de Daniel Hernando Gil Romero</h3>
+<span class="byline">Puntos 1 y 2</span>
+<h3>Tipo de red que se implementaría con la propuesta de la directiva</h3>
+<p>Si se cumple la propuesta de la directiva, los computadores de los ingenieros y del área administrativa quedarían conectados a un switch, compartiendo un único acceso a Internet y sin ningún equipo dedicado a centralizar servicios. Eso configura una red de área local (LAN) entre pares, también llamada peer-to-peer o grupo de trabajo. Físicamente es una topología en estrella, porque cada equipo llega con su propio cable al switch, que actúa como nodo central de conmutación <span class="cite">(Tanenbaum &amp; Wetherall, 2012)</span>. En este modelo cada computador es a la vez cliente y proveedor de recursos, y la administración de usuarios, permisos y carpetas compartidas se hace de forma independiente en cada sistema operativo <span class="cite">(Kurose &amp; Ross, 2017)</span>.</p>
+<p>Reconozco que, técnicamente, esta solución tiene ventajas reales:</p>
+<ul>
+  <li><strong>Bajo costo:</strong> no requiere servidores dedicados, licencias de sistema operativo de servidor ni personal de TI de tiempo completo.</li>
+  <li><strong>Implementación rápida:</strong> basta un switch no administrable, el cableado y el enrutador del proveedor de Internet; los sistemas operativos de escritorio ya traen la función de grupo de trabajo y de compartir archivos.</li>
+  <li><strong>Autonomía:</strong> cada usuario administra su equipo sin depender de un nodo central.</li>
+  <li><strong>Tolerancia a fallas individuales:</strong> si un equipo se daña, los demás siguen funcionando.</li>
+  <li><strong>Topología en estrella:</strong> facilita aislar fallas de cableado y agregar equipos sin interrumpir la red <span class="cite">(Tanenbaum &amp; Wetherall, 2012)</span>.</li>
+  <li><strong>Suficiente para grupos pequeños</strong> (menos de diez equipos) con tráfico ligero y bajas exigencias de seguridad.</li>
+</ul>
+<h3>Evaluación de la propuesta en función de la seguridad de la información</h3>
+<p>Mi posición es que la propuesta no es viable para esta empresa, aunque sea barata. Evalúo las consecuencias con la tríada confidencialidad, integridad y disponibilidad <span class="cite">(Whitman &amp; Mattord, 2018)</span>, porque esos tres atributos son exactamente lo que “Protejo sus Datos” les vende a sus clientes.</p>
+<p><strong>Confidencialidad.</strong> En una red entre pares no hay autenticación centralizada: cada sistema operativo tiene sus propias cuentas locales y nadie controla la complejidad, la caducidad o el bloqueo de las contraseñas. Stallings <span class="cite">(2017)</span> señala que el control de acceso es un servicio de seguridad fundamental y que sin él no se puede garantizar que solo los usuarios autorizados accedan a los recursos. El caso es crítico porque desde esos equipos se administra AWS: si un atacante compromete un computador y obtiene las llaves de acceso o la sesión de la consola, controla los datos de todos los clientes. Bajo el modelo de responsabilidad compartida, ese incidente sería responsabilidad de la empresa y no de Amazon <span class="cite">(Amazon Web Services, s.f.-a)</span>.</p>
+<p><strong>Integridad.</strong> Sin segmentación, ingenieros y administrativos comparten el mismo dominio de difusión. Un correo de phishing abierto en un equipo administrativo puede propagar malware o ransomware de forma lateral hasta los equipos de ingeniería. Un switch no administrable tampoco ofrece inspección dinámica de ARP ni seguridad de puertos, de modo que la red queda expuesta a ataques de suplantación ARP y de intermediario <span class="cite">(Odom, 2020)</span>.</p>
+<p><strong>Disponibilidad.</strong> Aunque los datos estén en AWS, la capacidad de administrarlos, atender incidentes y aplicar cambios depende de un solo enlace a Internet, un solo switch y, normalmente, un suministro eléctrico sin respaldo. Cada uno es un punto único de falla que contradice la promesa de servicio 24/7.</p>
+<p><strong>Trazabilidad y cumplimiento legal.</strong> Sin registros centralizados no se puede auditar quién accedió a qué información ni reconstruir un incidente. La Ley 1581 de 2012 obliga al responsable del tratamiento a adoptar medidas técnicas, humanas y administrativas para evitar la adulteración, la pérdida y el acceso no autorizado a los datos personales <span class="cite">(Congreso de la República de Colombia, 2012)</span>, y la norma ISO/IEC 27001 exige controles de gestión de accesos, registro de eventos y segregación de redes <span class="cite">(International Organization for Standardization [ISO], 2022)</span>. Por eso considero que una decisión de este tipo no puede tomarse solo con criterios de costo: Cano y Almanza <span class="cite">(2020)</span> evidencian que en las organizaciones colombianas la seguridad de la información es cada vez más un asunto estratégico que compromete a la alta dirección, y no solo al área técnica.</p>
+<div class="table-wrap"><table>
+<tr><th>Riesgo</th><th>Causa técnica</th><th>Pilar afectado</th></tr>
+<tr><td>Acceso no autorizado a la información</td><td>Cuentas locales en cada equipo, sin autenticación centralizada ni políticas de contraseñas</td><td><span class="pill">Confidencialidad</span></td></tr>
+<tr><td>Robo de credenciales de AWS</td><td>Llaves de acceso y sesiones de consola almacenadas en equipos sin control ni cifrado</td><td><span class="pill">Confidencialidad</span></td></tr>
+<tr><td>Propagación de malware o ransomware</td><td>Red plana: todos los equipos comparten el mismo dominio de difusión</td><td><span class="pill">Integridad</span> <span class="pill">Disponibilidad</span></td></tr>
+<tr><td>Suplantación ARP e intercepción de tráfico</td><td>Switch no administrable, sin inspección ARP ni seguridad de puertos</td><td><span class="pill">Confidencialidad</span> <span class="pill">Integridad</span></td></tr>
+<tr><td>Ausencia de trazabilidad</td><td>No hay registros centralizados de eventos ni auditoría</td><td><span class="pill">No repudio</span></td></tr>
+<tr><td>Pérdida de la gestión del servicio</td><td>Un solo proveedor de Internet, un solo switch y sin respaldo eléctrico</td><td><span class="pill">Disponibilidad</span></td></tr>
+<tr><td>Sanciones legales</td><td>Medidas de seguridad insuficientes frente a la Ley 1581 de 2012</td><td><span class="pill">Cumplimiento</span></td></tr>
+</table></div>
+<p class="caption">Tabla 2. Riesgos de la red entre pares propuesta por la directiva. Fuente: propia, con base en Stallings (2017), Whitman y Mattord (2018) y Congreso de la República de Colombia (2012).</p>
+</section>
+
+<section id="aporte-companero">
+<h3>3.3 Aporte de Jabes Acuña Hernandez</h3>
+<span class="byline">Puntos 3, 4 y 5</span>
+<h3>Condiciones para implementar una red cliente-servidor</h3>
+<p>Coincido con Daniel en que la red entre pares no protege la información, pero considero importante dejar claro bajo qué condiciones la alternativa cliente-servidor es realmente viable, porque no basta con comprar un servidor. En este modelo uno o varios equipos dedicados centralizan servicios como la autenticación, la resolución de nombres, el almacenamiento de archivos y los respaldos, y los clientes los solicitan <span class="cite">(Kurose &amp; Ross, 2017)</span>. Para “Protejo sus Datos” deben cumplirse estas condiciones:</p>
+<ul>
+  <li>Presupuesto para servidores, licencias de sistema operativo de servidor y de acceso de clientes, un switch administrable y un firewall, justificado por el valor de la información que se protege.</li>
+  <li>Personal de TI, propio o contratado, con competencias en administración de sistemas operativos de servidor, servicios de directorio, redes y seguridad.</li>
+  <li>Un espacio físico seguro (cuarto técnico o rack con llave), con ventilación y sistema de alimentación ininterrumpida (UPS).</li>
+  <li>La necesidad de administrar de forma centralizada usuarios, contraseñas, permisos, actualizaciones y copias de respaldo; con más de unos pocos equipos, hacerlo uno por uno es inmanejable.</li>
+  <li>Conectividad redundante (dos proveedores de Internet) para sostener la gestión del servicio 24/7.</li>
+  <li>Políticas de seguridad documentadas y alineadas con ISO/IEC 27001 y con la Ley 1581 de 2012 <span class="cite">(Congreso de la República de Colombia, 2012; ISO, 2022)</span>.</li>
+</ul>
+<h3>Desventajas de una solución cliente-servidor</h3>
+<p>También quiero señalar los inconvenientes de este modelo, para que la directiva tome la decisión completa:</p>
+<ul>
+  <li><strong>Mayor costo</strong> de hardware, licencias y mantenimiento continuo.</li>
+  <li><strong>Punto único de falla:</strong> si el servidor central no tiene redundancia, su caída deja a todos los clientes sin autenticación ni archivos. Kurose y Ross <span class="cite">(2017)</span> señalan que en este modelo el servidor debe estar siempre activo, porque la disponibilidad del servicio depende de él.</li>
+  <li><strong>Congestión:</strong> cuando muchos clientes solicitan servicios al mismo tiempo, el servidor y su enlace pueden saturarse, por lo que hay que dimensionar la capacidad y escalar de forma planificada <span class="cite">(Kurose &amp; Ross, 2017)</span>.</li>
+  <li><strong>Mayor complejidad administrativa:</strong> configurar un directorio, directivas de grupo, permisos y respaldos exige conocimientos especializados en sistemas operativos de servidor <span class="cite">(Silberschatz et al., 2018)</span>.</li>
+  <li><strong>Blanco atractivo para atacantes:</strong> al concentrar credenciales y datos, el servidor se vuelve un objetivo prioritario, y su compromiso tiene un impacto amplio <span class="cite">(Whitman &amp; Mattord, 2018)</span>.</li>
+</ul>
+<h3>Ventajas de una solución cliente-servidor</h3>
+<ul>
+  <li><strong>Autenticación y autorización centralizadas:</strong> un servicio de directorio como Active Directory administra en un solo lugar las identidades y los permisos de todos los usuarios y equipos <span class="cite">(Microsoft, 2023)</span>.</li>
+  <li><strong>Políticas uniformes:</strong> las directivas de grupo imponen contraseñas robustas, bloqueo de sesión, cifrado de disco y restricciones de software en todos los equipos del dominio.</li>
+  <li><strong>Mínimo privilegio:</strong> los permisos se asignan por grupos según el rol de cada persona, lo que reduce la superficie de ataque <span class="cite">(Tanenbaum &amp; Bos, 2015)</span>.</li>
+  <li><strong>Respaldo y recuperación centralizados</strong> de la información local.</li>
+  <li><strong>Trazabilidad:</strong> los registros de eventos se concentran en un servidor, lo que facilita detectar incidentes y demostrar cumplimiento <span class="cite">(ISO, 2022)</span>.</li>
+  <li><strong>Escalabilidad:</strong> se agregan usuarios, equipos y servicios sin reconfigurar cada computador <span class="cite">(Tanenbaum &amp; Wetherall, 2012)</span>.</li>
+</ul>
+</section>
+
+<section id="discusion">
+<h3>3.4 Discusión entre pares y consenso</h3>
+<div class="thread">
+  <div class="post"><div class="who">Jabes Acuña Hernandez</div><p>Mi preocupación inicial era el costo. Una empresa que apenas entra al mercado podría no tener presupuesto para dos servidores, un firewall y un switch administrable desde el primer día. Propuse una implementación por fases: empezar con firewall, VLAN y autenticación multifactor en AWS, y agregar el controlador de dominio cuando crezca el número de empleados.</p></div>
+  <div class="post daniel"><div class="who">Daniel Hernando Gil Romero</div><p>Estoy de acuerdo con implementar por fases, pero no con dejar la gestión de identidades para después, porque el principal riesgo está en las credenciales con las que se administra AWS. Propongo que la primera fase incluya el firewall, la segmentación, la VPN hacia AWS, la autenticación multifactor y el controlador de dominio; la redundancia de servidores y el segundo servidor de respaldos pueden llegar en la segunda fase.</p></div>
+  <div class="post"><div class="who">Jabes Acuña Hernandez</div><p>Acepto la propuesta. El costo de una fuga de información, con sanciones bajo la Ley 1581 y la pérdida de clientes, es mayor que la inversión inicial. Para bajar costos, propongo usar Ubuntu Server en el servidor de archivos y respaldos, que no requiere licencia.</p></div>
+  <div class="post consensus"><div class="who">Consenso del grupo</div><p>Recomendar a los directivos una arquitectura cliente-servidor segmentada, integrada de forma segura con AWS, implementada en dos fases y combinando Windows Server para la gestión de identidades con Linux para los servicios de archivos y registros.</p></div>
+</div>
+</section>
+
+<section id="arquitectura">
+<h3>3.5 Arquitectura de red propuesta a los directivos</h3>
+<p>La arquitectura se basa en el enfoque de confianza cero (zero trust), que parte de que ningún usuario o equipo es confiable solo por estar dentro de la red interna, de modo que cada acceso debe autenticarse, autorizarse y registrarse <span class="cite">(Rose et al., 2020)</span>.</p>
+<h3>Topología y componentes de red</h3>
+<p>La red se conecta a Internet mediante dos proveedores, uno principal y uno de respaldo, para eliminar el punto único de falla del enlace. Ambos llegan a un firewall de gestión unificada de amenazas (UTM) que filtra el tráfico, detecta intrusiones y establece un túnel VPN IPsec de sitio a sitio con la nube privada virtual (VPC) de la empresa en AWS, de modo que la administración de la nube no viaja por Internet sin cifrar <span class="cite">(Amazon Web Services, s.f.-c)</span>. Detrás del firewall, un switch capa 3 administrable segmenta la red mediante VLAN según el estándar IEEE 802.1Q <span class="cite">(IEEE, 2018)</span> y aplica listas de control de acceso entre los segmentos.</p>
+<figure>
+  <img src="data:image/png;base64,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" alt="Diagrama: dos proveedores de Internet llegan a un firewall UTM, que tiene un túnel VPN IPsec hacia la VPC en AWS y conecta con un switch capa 3; del switch salen las VLAN 10 Ingeniería, 20 Administrativa, 30 Servidores, 99 Gestión y 40 Invitados.">
+</figure>
+<p class="caption">Figura 1. Arquitectura cliente-servidor propuesta para “Protejo sus Datos”. Fuente: propia.</p>
+<div class="table-wrap"><table>
+<tr><th>VLAN</th><th>Nombre</th><th>Equipos</th><th>Política de acceso</th></tr>
+<tr><td><span class="vlan">VLAN 10</span></td><td>Ingeniería Cloud</td><td>Estaciones de los ingenieros</td><td>Acceso a AWS solo por VPN y con MFA; sin acceso a la VLAN administrativa</td></tr>
+<tr><td><span class="vlan">VLAN 20</span></td><td>Administrativa</td><td>Estaciones del área administrativa</td><td>Ofimática, correo e Internet filtrado; sin acceso a la consola de AWS</td></tr>
+<tr><td><span class="vlan">VLAN 30</span></td><td>Servidores</td><td>Controlador de dominio, archivos, respaldos y registros</td><td>Solo los puertos de servicio necesarios (<span class="mono">DNS 53, Kerberos 88, LDAP 389, SMB 445</span>)</td></tr>
+<tr><td><span class="vlan">VLAN 99</span></td><td>Gestión</td><td>Interfaces de administración del switch y del firewall</td><td>Exclusiva del grupo de administradores de TI</td></tr>
+<tr><td><span class="vlan">VLAN 40</span></td><td>Invitados</td><td>Equipos de visitantes</td><td>Solo salida a Internet, aislada del resto de la red</td></tr>
+</table></div>
+<p class="caption">Tabla 3. Segmentación lógica de la red mediante VLAN. Fuente: propia, con base en IEEE (2018) y Odom (2020).</p>
+
+<h3>Roles de los equipos, características y sistemas operativos</h3>
+<p>Se combina Windows Server, por la madurez de Active Directory en la gestión centralizada de identidades y directivas de grupo <span class="cite">(Microsoft, 2023)</span>, con Ubuntu Server para los servicios de archivos, respaldos y registros, lo que reduce el costo de licencias. En las estaciones se exige un sistema operativo con cifrado de disco completo y arranque seguro, porque un portátil de ingeniería robado no debe exponer las credenciales de la nube <span class="cite">(Silberschatz et al., 2018)</span>.</p>
+<div class="table-wrap"><table>
+<tr><th>Equipo</th><th>Rol</th><th>Características mínimas</th><th>Sistema operativo</th></tr>
+<tr><td>Servidor 1</td><td>Controlador de dominio (AD DS), DNS y DHCP</td><td>CPU de 8 núcleos, 32 GB RAM, SSD en RAID 1, doble fuente de poder</td><td>Windows Server 2022 Standard</td></tr>
+<tr><td>Servidor 2 (fase 2)</td><td>Archivos, copias de respaldo y registros (syslog/SIEM)</td><td>CPU de 8 núcleos, 32 GB RAM, 4 TB en RAID 6</td><td>Ubuntu Server 24.04 LTS (Samba, rsync, rsyslog)</td></tr>
+<tr><td>Firewall UTM</td><td>Filtrado, IDS/IPS, NAT, VPN IPsec a AWS y balanceo entre dos ISP</td><td>Dos puertos WAN, cifrado por hardware</td><td>pfSense (FreeBSD) o FortiOS</td></tr>
+<tr><td>Switch capa 3</td><td>Conmutación, VLAN 802.1Q, ACL y seguridad de puertos</td><td>24 puertos Gigabit, administrable</td><td>Sistema del fabricante (p. ej., Cisco IOS)</td></tr>
+<tr><td>Estaciones de ingeniería</td><td>Configuración y administración de los servicios en AWS</td><td>16 GB RAM, TPM 2.0, cifrado de disco</td><td>Windows 11 Pro (BitLocker) o Ubuntu Desktop LTS (LUKS)</td></tr>
+<tr><td>Estaciones administrativas</td><td>Gestión administrativa y ofimática</td><td>8 a 16 GB RAM, cifrado de disco</td><td>Windows 11 Pro unido al dominio</td></tr>
+<tr><td>Nube (AWS)</td><td>Almacenamiento y servicios ofrecidos a los clientes</td><td>Varias zonas de disponibilidad, cifrado con KMS</td><td>Servicios administrados de AWS</td></tr>
+</table></div>
+<p class="caption">Tabla 4. Roles, características y sistemas operativos de los equipos. Fuente: propia, con base en Microsoft (2023) y Amazon Web Services (s.f.-a, s.f.-c).</p>
+
+<h3>Grupos de usuarios y perfiles</h3>
+<p>Los permisos se asignan por grupos y no por usuarios individuales, siguiendo el principio de mínimo privilegio <span class="cite">(Tanenbaum &amp; Bos, 2015)</span>. En el dominio se crean unidades organizativas (OU) por área, a las que se vinculan las directivas de grupo (GPO); los permisos de las carpetas compartidas se definen con listas de control de acceso NTFS en Windows y con grupos y permisos POSIX en Linux, donde solo el grupo de administradores de TI puede usar <span class="mono">sudo</span>. En AWS se usan IAM Identity Center con autenticación multifactor (MFA), credenciales temporales y roles en lugar de llaves de acceso permanentes, y se restringe el uso de la cuenta raíz <span class="cite">(Amazon Web Services, s.f.-b)</span>.</p>
+<div class="table-wrap"><table>
+<tr><th>Grupo</th><th>Integrantes</th><th>Perfil en la red local</th><th>Permisos en AWS</th></tr>
+<tr><td class="mono">GG_Admin_TI</td><td>Responsables de infraestructura</td><td>Administradores del dominio, del switch y del firewall; cuentas administrativas separadas de las de uso diario</td><td>Rol administrativo con MFA; sin uso diario de la cuenta raíz</td></tr>
+<tr><td class="mono">GG_Ingenieros_Cloud</td><td>Ingenieros de configuración</td><td>Usuario estándar (sin privilegios de administrador local); carpetas técnicas</td><td>Roles por servicio (S3, EC2, red) con MFA y sesiones temporales</td></tr>
+<tr><td class="mono">GG_Administrativos</td><td>Personal administrativo</td><td>Usuario estándar; carpetas de su área, impresoras y correo</td><td>Sin acceso; si se requiere, solo a la consola de facturación</td></tr>
+<tr><td class="mono">GG_Auditoria</td><td>Control interno o auditor externo</td><td>Solo lectura de los registros del servidor de logs</td><td>Solo lectura de CloudTrail y AWS Config</td></tr>
+<tr><td class="mono">GG_Invitados</td><td>Visitantes</td><td>Sin cuenta de dominio; solo la VLAN 40</td><td>Sin acceso</td></tr>
+</table></div>
+<p class="caption">Tabla 5. Grupos de usuarios y perfiles bajo el principio de mínimo privilegio. Fuente: propia, con base en Amazon Web Services (s.f.-b) y Microsoft (2023).</p>
+<p>Las GPO aplicadas a todos los perfiles incluyen: contraseñas de mínimo 12 caracteres con bloqueo tras cinco intentos fallidos, bloqueo de pantalla a los cinco minutos, cifrado de disco obligatorio, bloqueo de medios extraíbles, actualizaciones automáticas del sistema operativo y registro de inicios de sesión.</p>
+
+<h3>Controles complementarios y fases de implementación</h3>
+<ul>
+  <li><strong>Fase 1:</strong> firewall UTM con VPN hacia AWS, switch administrable con VLAN, controlador de dominio con GPO, MFA en AWS, cifrado de disco en las estaciones y UPS.</li>
+  <li><strong>Fase 2:</strong> segundo proveedor de Internet, servidor de archivos, respaldos y registros, y controlador de dominio secundario para eliminar el punto único de falla del directorio.</li>
+  <li><strong>Permanentes:</strong> cifrado de los datos de los clientes en reposo (AWS KMS) y en tránsito (TLS), replicación en varias zonas de disponibilidad de AWS, registro en CloudTrail, respaldos con la regla 3-2-1 y capacitación del personal en prevención de phishing.</li>
+</ul>
+</section>
+
+<section id="conclusiones">
+<h2>4. Conclusiones</h2>
+<p>La red entre pares que propone la directiva es económica y fácil de implementar, pero es incompatible con el modelo de negocio de “Protejo sus Datos”: una empresa que vende confidencialidad no puede administrar la información de sus clientes desde una red plana, sin autenticación centralizada, sin segmentación y sin trazabilidad.</p>
+<p>Contratar AWS no traslada toda la responsabilidad de la seguridad al proveedor. Según el modelo de responsabilidad compartida, la protección de las identidades, los accesos y los equipos de administración corresponde a la empresa, de modo que la seguridad de la nube depende directamente de la red interna y de cómo se configuren los sistemas operativos.</p>
+<p>La arquitectura cliente-servidor implica más costos y exige personal especializado, pero estas desventajas se mitigan con una implementación por fases, redundancia y buenas prácticas de administración. Su costo es menor que el impacto económico, legal y reputacional de una fuga de información.</p>
+<p>La arquitectura recomendada, con firewall UTM, VPN hacia AWS, segmentación por VLAN, directorio centralizado en Windows Server, servicios de archivos y registros en Linux, grupos con mínimo privilegio y autenticación multifactor, responde a las dos promesas de la empresa, confidencialidad y disponibilidad 24/7, y facilita el cumplimiento de la Ley 1581 de 2012 y de ISO/IEC 27001.</p>
+<p>Finalmente, la discusión entre pares permitió pasar de dos posiciones distintas, una centrada en la seguridad y otra en el costo, a una propuesta por fases que equilibra ambas, lo que demuestra que el diseño de una red debe partir del contexto y del valor de la información que protege, y no únicamente del criterio de reducir costos.</p>
+</section>
+
+<section id="referencias" class="refs">
+<h2>Referencias</h2>
+<p>Amazon Web Services. (s.f.-a). <i>Modelo de responsabilidad compartida</i>. Recuperado el 26 de octubre de 2026, de https://aws.amazon.com/es/compliance/shared-responsibility-model/</p>
+<p>Amazon Web Services. (s.f.-b). <i>Prácticas recomendadas de seguridad en IAM</i>. Recuperado el 26 de octubre de 2026, de https://docs.aws.amazon.com/es_es/IAM/latest/UserGuide/best-practices.html</p>
+<p>Amazon Web Services. (s.f.-c). <i>¿Qué es AWS Site-to-Site VPN?</i> Recuperado el 26 de octubre de 2026, de https://docs.aws.amazon.com/es_es/vpn/latest/s2svpn/VPC_VPN.html</p>
+<p>Cano, J., &amp; Almanza, A. (2020). Estudio de la evolución de la seguridad de la información en Colombia: 2000-2018. <i>Revista Ibérica de Sistemas e Tecnologias de Informação</i>, 470–483.</p>
+<p>Congreso de la República de Colombia. (2012). <i>Ley Estatutaria 1581 de 2012, por la cual se dictan disposiciones generales para la protección de datos personales</i>. Diario Oficial No. 48.587.</p>
+<p>IEEE. (2018). <i>IEEE standard for local and metropolitan area networks—Bridges and bridged networks</i> (IEEE Std 802.1Q-2018). https://doi.org/10.1109/IEEESTD.2018.8403927</p>
+<p>International Organization for Standardization. (2022). <i>Information security, cybersecurity and privacy protection — Information security management systems — Requirements</i> (ISO/IEC 27001:2022).</p>
+<p>Kurose, J. F., &amp; Ross, K. W. (2017). <i>Redes de computadoras: Un enfoque descendente</i> (7.ª ed.). Pearson Educación.</p>
+<p>Microsoft. (2023). <i>Información general sobre Active Directory Domain Services</i>. Microsoft Learn. https://learn.microsoft.com/es-es/windows-server/identity/ad-ds/get-started/virtual-dc/active-directory-domain-services-overview</p>
+<p>Odom, W. (2020). <i>CCNA 200-301 official cert guide, volume 1</i>. Cisco Press.</p>
+<p>Rose, S., Borchert, O., Mitchell, S., &amp; Connelly, S. (2020). <i>Zero trust architecture</i> (NIST Special Publication 800-207). National Institute of Standards and Technology. https://doi.org/10.6028/NIST.SP.800-207</p>
+<p>Silberschatz, A., Galvin, P. B., &amp; Gagne, G. (2018). <i>Operating system concepts</i> (10.ª ed.). Wiley.</p>
+<p>Stallings, W. (2017). <i>Network security essentials: Applications and standards</i> (6.ª ed.). Pearson.</p>
+<p>Tanenbaum, A. S., &amp; Bos, H. (2015). <i>Modern operating systems</i> (4.ª ed.). Pearson.</p>
+<p>Tanenbaum, A. S., &amp; Wetherall, D. J. (2012). <i>Redes de computadoras</i> (5.ª ed.). Pearson Educación.</p>
+<p>Whitman, M. E., &amp; Mattord, H. J. (2018). <i>Principles of information security</i> (6.ª ed.). Cengage Learning.</p>
+</section>
+
+<footer>Wiki “Aquí entre iguales” · Actividad evaluativa Eje 2 · Sistemas Operativos II · Fundación Universitaria del Área Andina</footer>
+</article>
+</div>
+
+</body>
+</html>
